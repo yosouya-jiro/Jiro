@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>予想屋じろう</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --fg:#14201e; --muted:#5b6b68; --line:#d7dedc;
+  --accent:#0d6b63; --accent-fg:#ffffff; --ink:#0f2a27;
+  --gS:#0f2a27; --gS-fg:#ffffff; --gA:#0d6b63; --gA-fg:#ffffff; --gB:#4f9a92; --gB-fg:#ffffff;
+  --gC:#cfe3e0; --gC-fg:#14312e; --gD:#e6ebea; --gD-fg:#3b4a47; --gE:transparent; --gE-fg:#5b6b68;
+  --warn-bg:#fbf3dc; --warn-fg:#5a4710;
+  --font:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif; --mono:"DM Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0c1413; --surface:#142120; --fg:#e4eeec; --muted:#93a8a4; --line:#264240;
+  --accent:#4cc2b6; --accent-fg:#06201d; --ink:#e4eeec;
+  --gS:#e4eeec; --gS-fg:#0c1413; --gA:#4cc2b6; --gA-fg:#06201d; --gB:#2d7d75; --gB-fg:#ffffff;
+  --gC:#1f3b38; --gC-fg:#cfe3e0; --gD:#1a2d2b; --gD-fg:#9fb5b1; --gE:transparent; --gE-fg:#93a8a4;
+  --warn-bg:#2b2410; --warn-fg:#e8d28a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c1413; --surface:#142120; --fg:#e4eeec; --muted:#93a8a4; --line:#264240;
+  --accent:#4cc2b6; --accent-fg:#06201d; --ink:#e4eeec;
+  --gS:#e4eeec; --gS-fg:#0c1413; --gA:#4cc2b6; --gA-fg:#06201d; --gB:#2d7d75; --gB-fg:#ffffff;
+  --gC:#1f3b38; --gC-fg:#cfe3e0; --gD:#1a2d2b; --gD-fg:#9fb5b1; --gE:transparent; --gE-fg:#93a8a4;
+  --warn-bg:#2b2410; --warn-fg:#e8d28a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.6;padding-inline:16px;padding-block:20px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px;border-bottom:2px solid var(--ink);padding-bottom:10px}
+h1{margin:0;font-size:28px;font-weight:900;letter-spacing:.04em}
+.sub{color:var(--muted);font-size:13px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:13px;color:var(--muted)}
+.meta b{color:var(--fg);font-weight:700}
+button,select{font:inherit;color:inherit}
+.bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;cursor:pointer;font-size:13px;display:flex;gap:6px;align-items:center}
+.pill[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.pill:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pill .n{font-family:var(--mono);opacity:.8}
+select{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.race{font-weight:900;font-size:17px}
+.race small{font-weight:500;color:var(--muted);font-size:12px;margin-left:6px;font-family:var(--mono)}
+.badge{min-width:34px;text-align:center;font-weight:900;border-radius:6px;padding:2px 10px;font-size:15px;border:1px solid var(--line)}
+.gS{background:var(--gS);color:var(--gS-fg)} .gA{background:var(--gA);color:var(--gA-fg)} .gB{background:var(--gB);color:var(--gB-fg)}
+.gC{background:var(--gC);color:var(--gC-fg)} .gD{background:var(--gD);color:var(--gD-fg)} .gE{background:var(--gE);color:var(--gE-fg)}
+.conf{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.conf .track{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;border:1px solid var(--line)}
+.conf .fill{height:100%;background:var(--accent)}
+.conf span.v{font-family:var(--mono);color:var(--fg);min-width:3.2em;text-align:right}
+.lab{font-size:11px;letter-spacing:.08em;color:var(--muted);margin-bottom:3px}
+.combo{display:inline-flex;gap:2px;align-items:center}
+.n1,.n2,.n3,.n4,.n5,.n6{width:22px;height:22px;border-radius:4px;display:inline-grid;place-items:center;font-family:var(--mono);font-weight:500;font-size:13px;border:1px solid rgba(0,0,0,.25)}
+.n1{background:#fff;color:#111;border-color:#9aa5a3}.n2{background:#1b1b1b;color:#fff}.n3{background:#d63a30;color:#fff}
+.n4{background:#2a62d1;color:#fff}.n5{background:#f2c418;color:#222}.n6{background:#2e9e4f;color:#fff}
+.main .n1,.main .n2,.main .n3,.main .n4,.main .n5,.main .n6{width:30px;height:30px;font-size:17px}
+.picks{display:flex;flex-wrap:wrap;gap:6px 10px}
+.pick{padding:2px 4px;border-radius:4px}
+.pick.first{}
+.pick.new{outline:1px dashed var(--accent);background:var(--bg)}
+.card-f{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+.card-f b{color:var(--fg);font-family:var(--mono)}
+.notice{background:var(--warn-bg);color:var(--warn-fg);border-radius:8px;padding:12px 14px;font-size:13px}
+.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:8px}
+.tabs,.seg{display:flex;gap:4px}
+.tab{border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:2px 10px;font-size:12px;cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab:disabled{opacity:.45;cursor:default}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stamp{font-size:12px;color:var(--muted)}
+.stamp b{color:var(--accent);font-weight:700}
+.dropped{font-size:12px;color:var(--muted)}
+.dropped .combo{opacity:.55;transform:scale(.85);transform-origin:left center}
+@media (max-width:480px){h1{font-size:24px}}
+
+.row2{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.nums{display:flex;gap:14px;font-size:12px;color:var(--muted)}
+.nums b{color:var(--fg);font-family:var(--mono);font-size:15px}
+.picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(94px,1fr));gap:6px}
+.pick{padding:4px;display:flex;justify-content:center;border-radius:6px}
+.pick .n1,.pick .n2,.pick .n3,.pick .n4,.pick .n5,.pick .n6{width:26px;height:26px;font-size:15px}
+.pick.first{}
+
+.row2{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.nums{display:flex;gap:14px;font-size:12px;color:var(--muted)}
+.nums b{color:var(--fg);font-family:var(--mono);font-size:15px}
+.fm{display:flex;flex-direction:column;gap:6px}
+.fm-h,.fm-r{display:grid;grid-template-columns:44px 1fr 1.4fr;gap:8px;align-items:center}
+.fm-h{font-size:11px;letter-spacing:.08em;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:3px}
+.fm-r{padding:3px 0;border-bottom:1px dashed var(--line)}
+.fm-r:last-child{border-bottom:none}
+.fm-c{display:flex;flex-wrap:wrap;gap:3px}
+.fm .n1,.fm .n2,.fm .n3,.fm .n4,.fm .n5,.fm .n6{width:26px;height:26px;font-size:15px}
+.fm-pt{font-size:12px;color:var(--muted)}
+
+.fl{font-family:var(--mono);font-size:20px;line-height:1.75;letter-spacing:.08em;color:var(--fg)}
+.fl-f{display:flex;justify-content:space-between;align-items:center;gap:8px}
+
+.fl{font-size:15px;line-height:1.2;letter-spacing:0;display:flex;flex-direction:column;gap:8px}
+.fl-line{display:flex;flex-wrap:wrap;align-items:center;gap:2px}
+.fl-line .n1,.fl-line .n2,.fl-line .n3,.fl-line .n4,.fl-line .n5,.fl-line .n6{width:25px;height:25px;font-size:15px}
+.fl-sep{color:var(--muted);font-family:var(--mono);padding:0 3px}
+.datebar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dbtn{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:4px 12px;cursor:pointer;font-size:14px}
+.dbtn:disabled{opacity:.4;cursor:default}
+.dbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.datebar select{font-size:15px;font-weight:700}
+
+.res{border-top:1px solid var(--line);padding-top:8px;font-size:13px;display:flex;flex-direction:column;gap:2px}
+.res .ok{color:#d03030;font-weight:700}.res .ng{color:var(--muted)}
+.res .wait{color:var(--muted);font-size:12px}
+.daysum{font-weight:700}
+.card.past{opacity:.55}
+.co{font-size:13px}.co b{font-family:var(--mono)}.co small{color:var(--muted);font-size:11px}
+.fw{margin:6px 0;font-size:13px;line-height:1.6}.fw small{opacity:.7}#stadgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0;width:100%;flex:1 0 100%}#stadgrid .sg{padding:9px 2px;border-radius:10px;border:1px solid rgba(80,140,255,.5);background:rgba(80,140,255,.18);color:inherit;font-size:14px;font-weight:600;cursor:pointer}#stadgrid .sg.all{grid-column:1/-1;font-size:15px}#stadgrid .sg.off{background:rgba(128,128,128,.14);border-color:transparent;color:rgba(128,128,128,.75);font-weight:400;cursor:default}#stadgrid .sg.on{outline:3px solid #2f6fe0;font-weight:800}</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>予想屋じろう</h1>
+    <div class="sub">事前予想 → 展示が出たら更新 ／ 開催全場 ／ <a href="results.html" style="color:inherit;text-decoration:underline">実績</a></div>
+  </header>
+
+  <div class="datebar" id="datebar"></div>
+  <div class="meta" id="meta"></div>
+
+  <div class="bar">
+    <div class="seg" id="seg" role="group" aria-label="表示する予想"></div>
+    <div class="pills" id="pills" role="group" aria-label="おすすめ度で絞り込み"></div>
+    <label class="sub">場 <select id="stad" aria-label="場で絞り込み"></select></label>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="notice">
+    おすすめ度は「当たりやすさ」の目安で、的中や回収を保証するものではありません。想定的中率はモデルが見積もった確率の合計です。舟券は余裕資金の範囲で、ご自身の判断でお楽しみください。
+  </div>
+</div>
+
+<script>
+var GRADES = ["S","A","B","C","D","E"];
+var state = { data:null, grade:"ALL", stad:"ALL", view:"ex", hitOnly:false, doneOnly:false, per:{}, error:"" };
+
+function combo(s){
+  return '<span class="combo">' + s.split("-").map(function(n){return '<span class="n'+n+'">'+n+'</span>'}).join("") + '</span>';
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]}); }
+function key(x){ return x.sno + "-" + x.r; }
+function viewOf(x){
+  var v = state.per[key(x)] || (state.view === "pre" ? "pre" : state.view === "ex" ? "ex" : "auto");
+  if(v === "auto") v = x.ex ? "ex" : "pre";
+  if(v === "ex" && !x.ex) v = "pre";
+  return v;
+}
+
+
+function chip(n){ return '<span class="n'+n+'">'+n+'</span>'; }
+// 買い目を「1着 / 2着 / 3着」のフォーメーションにまとめる（買い目と過不足なく一致する形だけ）
+function formation(picks){
+  var byF = {}, order = [];
+  picks.forEach(function(c){
+    var a = c.split("-").map(Number);
+    if(!byF[a[0]]){ byF[a[0]] = {}; order.push(a[0]); }
+    (byF[a[0]][a[1]] = byF[a[0]][a[1]] || []).push(a[2]);
+  });
+  var rows = order.sort(function(x,y){return x-y}).map(function(f){
+    var T = byF[f], seconds = Object.keys(T).map(Number).sort(function(x,y){return x-y});
+    seconds.forEach(function(s){ T[s].sort(function(x,y){return x-y}); });
+    var used = {}, groups = [];
+    function same(arr, set){ return arr.length === set.length && arr.every(function(v,i){return v === set[i]}); }
+    function minus(U, s){ return U.filter(function(v){return v !== s}); }
+    seconds.forEach(function(s){
+      if(used[s]) return;
+      var cands = [T[s].slice(), T[s].concat([s]).sort(function(x,y){return x-y})], best = null;
+      cands.forEach(function(U){
+        var G = seconds.filter(function(s2){ return !used[s2] && same(T[s2], minus(U, s2)); });
+        if(G.indexOf(s) >= 0 && (!best || G.length > best.G.length)) best = {G:G, U:U};
+      });
+      best.G.forEach(function(g){ used[g] = true; });
+      groups.push(best);
+    });
+    return groups.map(function(g,i){
+      return '<div class="fm-r"><div>'+(i===0?chip(f):'')+'</div><div class="fm-c">'+g.G.map(chip).join("")+'</div><div class="fm-c">'+g.U.map(chip).join("")+'</div></div>';
+    }).join("");
+  });
+  return '<div class="fm"><div class="fm-h"><span>1着</span><span>2着</span><span>3着</span></div>' + rows.join("") + '</div>';
+}
+
+
+// 買い目を「1着-2着-3着」の文字（例: 1-35-2356）にまとめる。買い目と過不足なく一致する形だけ。
+function ftext(picks){
+  var byF = {}, order = [];
+  picks.forEach(function(c){
+    var a = c.split("-").map(Number);
+    if(!byF[a[0]]){ byF[a[0]] = {}; order.push(a[0]); }
+    (byF[a[0]][a[1]] = byF[a[0]][a[1]] || []).push(a[2]);
+  });
+  var lines = [];
+  order.sort(function(x,y){return x-y}).forEach(function(f){
+    var T = byF[f], seconds = Object.keys(T).map(Number).sort(function(x,y){return x-y});
+    seconds.forEach(function(s){ T[s].sort(function(x,y){return x-y}); });
+    var used = {};
+    function same(arr, set){ return arr.length === set.length && arr.every(function(v,i){return v === set[i]}); }
+    function minus(U, s){ return U.filter(function(v){return v !== s}); }
+    seconds.forEach(function(s){
+      if(used[s]) return;
+      var cands = [T[s].slice(), T[s].concat([s]).sort(function(x,y){return x-y})], best = null;
+      cands.forEach(function(U){
+        var G = seconds.filter(function(s2){ return !used[s2] && same(T[s2], minus(U, s2)); });
+        if(G.indexOf(s) >= 0 && (!best || G.length > best.G.length)) best = {G:G, U:U};
+      });
+      best.G.forEach(function(g){ used[g] = true; });
+      lines.push(f + "-" + best.G.join("") + "-" + best.U.join(""));
+    });
+  });
+  return lines;
+}
+function copyText(x, v){
+  var p = x[v];
+  return x.stad + x.r + "R" + (v === "ex" ? "（展示後）" : "（事前）") + "\n" + ftext(p.picks).join("\n");
+}
+
+
+function fchips(l){
+  return '<div class="fl-line">' + l.split("-").map(function(part){
+    return part.split("").map(function(d){ return '<span class="n'+d+'">'+d+'</span>'; }).join("");
+  }).join('<span class="fl-sep">-</span>') + '</div>';
+}
+
+function render(){
+  var d = state.data, grid = document.getElementById("grid");
+  if(!d){
+    document.getElementById("meta").innerHTML = '<span>' + esc(state.error || "読み込み中") + '</span>';
+    document.getElementById("pills").innerHTML = ""; document.getElementById("seg").innerHTML = "";
+    grid.innerHTML = '<div class="empty">予想データ（data.json）がまだありません。自動更新が走ると表示されます。</div>';
+    return;
+  }
+  var races = d.races || [];
+  var nex = races.filter(function(x){return x.ex}).length;
+  document.getElementById("meta").innerHTML =
+    '<span><b>' + esc(d.date||"") + '</b></span><span>' + races.length + 'レース</span>' +
+    '<span>展示反映 <b>' + nex + '</b> / ' + races.length + '</span>' +
+    (d.updated ? '<span>更新 ' + esc(d.updated) + '</span>' : '');
+
+  var seg = [["pre","事前のみ"],["ex","展示後のみ"],["hit","的中のみ"],["done","終了のみ"]];
+  document.getElementById("seg").innerHTML = seg.map(function(s){
+    return '<button class="tab" type="button" data-v="'+s[0]+'" aria-pressed="'+(s[0]==="hit"?!!state.hitOnly:s[0]==="done"?!!state.doneOnly:state.view===s[0])+'">'+s[1]+'</button>';
+  }).join("");
+
+  var counts = {}; GRADES.forEach(function(g){counts[g]=0});
+  var shownView = races.map(function(x){ var v = viewOf(x); var p = x[v]; counts[p.grade]++; return {x:x, v:v, p:p}; });
+  var pills = '<button class="pill" type="button" data-g="ALL" aria-pressed="' + (state.grade==="ALL") + '">すべて <span class="n">' + races.length + '</span></button>';
+  GRADES.forEach(function(g){ pills += '<button class="pill" type="button" data-g="'+g+'" aria-pressed="'+(state.grade===g)+'">'+g+' <span class="n">'+counts[g]+'</span></button>'; });
+  document.getElementById("pills").innerHTML = pills;
+
+  var stads = []; races.forEach(function(x){ if(stads.indexOf(x.stad)<0) stads.push(x.stad) });
+  document.getElementById("stad").innerHTML = '<option value="ALL">全場</option>' + stads.map(function(s){return '<option value="'+esc(s)+'"'+(state.stad===s?' selected':'')+'>'+esc(s)+'</option>'}).join(""); renderStadGrid(stads, typeof grid !== 'undefined' ? grid : null);
+
+  var shown = shownView.filter(function(o){ return (state.grade==="ALL"||o.p.grade===state.grade) && (state.stad==="ALL"||o.x.stad===state.stad) && (!state.doneOnly || !!o.x.res) && (!state.hitOnly || (o.x.res && Object.keys(o.x.res.pays||{}).some(function(k){return o.p.picks.indexOf(k)>=0}))); });
+  shown.sort(function(a,b){
+    var pa = isPast(a.x,d)?1:0, pb = isPast(b.x,d)?1:0;
+    if(pa !== pb) return pa - pb;
+    var ca=a.x.close||"99:99", cb=b.x.close||"99:99";
+    var c = ca<cb?-1:ca>cb?1:(a.x.sno-b.x.sno)||(a.x.r-b.x.r);
+    return pa ? -c : c;
+  });
+  if(!shown.length){ grid.innerHTML = '<div class="empty">条件に合うレースがありません。</div>'; return; }
+  grid.innerHTML = shown.map(function(o){
+    var x = o.x, p = o.p, v = o.v, k = key(x);
+    var prePicks = x.pre.picks;
+    var picks = p.picks.map(function(c,idx){
+      var isNew = (v==="ex" && prePicks.indexOf(c) < 0);
+      return '<span class="pick'+(idx===0?' first':'')+(isNew?' new':'')+'">'+combo(c)+'</span>';
+    }).join("");
+    var dropped = "";
+    if(v==="ex"){
+      var gone = prePicks.filter(function(c){ return p.picks.indexOf(c) < 0 });
+      if(gone.length) dropped = '<div class="dropped">展示で外れた買い目 ' + gone.map(combo).join(" ") + '</div>';
+    }
+    var stamp = v==="ex" ? '<div class="stamp"><b>展示後</b>' + (x.ex_at ? '（' + esc(x.ex_at) + ' 反映）' : '') + ' ／ 破線の枠は事前から追加された買い目</div>'
+                         : '<div class="stamp">事前予想' + (x.ex ? '' : '（展示はまだ出ていません）') + '</div>';
+    var tabs = '<div class="tabs"><button class="tab" type="button" data-k="'+k+'" data-v="pre" aria-pressed="'+(v==="pre")+'">事前</button>' +
+               '<button class="tab" type="button" data-k="'+k+'" data-v="ex" aria-pressed="'+(v==="ex")+'"'+(x.ex?'':' disabled')+'>展示後</button></div>';
+    return '<article class="card'+(isPast(x,d) && !hitOf(x,p) ? ' past':'')+'">' +
+      '<div class="card-h"><div class="race">'+esc(x.stad)+' '+x.r+'R' + (x.close?'<small>締切 '+esc(x.close)+'</small>':'') + '</div>' +
+      '<div class="badge g'+p.grade+'" title="おすすめ度">'+p.grade+'</div></div>' +
+      '<div class="row2">' + tabs + '<div class="nums"><span>信頼度 <b>'+p.conf+'%</b></span><span>的中率 <b>'+p.hit+'%</b></span></div></div>' +
+      '<div class="fl">' + ftext(p.picks).map(fchips).join("") + '</div>' +
+      '<div class="fl-f"><span class="fm-pt">'+p.picks.length+'点' + (v==="ex" && x.ex_at ? ' ／ 展示後 '+esc(x.ex_at)+' 反映' : '') + '</span>' +
+      '<button class="tab" type="button" data-copy="'+k+'">コピー</button></div>' +
+      fwHtml(x,v,p) + coHtml(x,v,p) + resHtml(x,p) + '</article>';
+  }).join("");
+}
+
+var WD = ["日","月","火","水","木","金","土"];
+function dlabel(d){
+  var dt = new Date(+d.slice(0,4), +d.slice(4,6)-1, +d.slice(6,8));
+  return d.slice(0,4)+"/"+d.slice(4,6)+"/"+d.slice(6,8)+"（"+WD[dt.getDay()]+"）";
+}
+function renderDates(){
+  var el = document.getElementById("datebar"), ds = state.dates || [];
+  if(ds.length < 2){ el.innerHTML = ""; return; }
+  var i = ds.indexOf(state.date);
+  el.innerHTML = '<button class="dbtn" type="button" id="dprev"'+(i<=0?' disabled':'')+'>◀ 前の日</button>' +
+    '<select id="dsel" aria-label="日付">' + ds.slice().reverse().map(function(d){return '<option value="'+d+'"'+(d===state.date?' selected':'')+'>'+dlabel(d)+'</option>'}).join("") + '</select>' +
+    '<button class="dbtn" type="button" id="dnext"'+(i>=ds.length-1?' disabled':'')+'>次の日 ▶</button>' +
+    '<button class="dbtn" type="button" id="dlatest"'+(i===ds.length-1?' disabled':'')+'>最新</button>';
+}
+var REGRADE_THR = {pre:[29,27,24,22,18], ex:[30,28,25,22,19]};
+function regradeAll(d){ var rs = (d && d.races) || []; var hs = []; for(var q = 0; q < rs.length; q++){ if(rs[q].pre && rs[q].pre.hit != null) hs.push(rs[q].pre.hit); } hs.sort(function(x, y){ return x - y; }); if(hs.length && hs[Math.floor(hs.length / 2)] > 35) return; for(var i = 0; i < rs.length; i++){ ["pre","ex"].forEach(function(vw){ var p = rs[i][vw]; if(!p || p.hit == null) return; var t = REGRADE_THR[vw], g = "E"; for(var k = 0; k < 5; k++){ if(p.hit >= t[k]){ g = "SABCDE".charAt(k); break; } } if(p.grade0 == null) p.grade0 = p.grade; p.grade = g; }); } }
+function showData(d){ try{ regradeAll(d); }catch(e){}
+  state.data = d; state.error = ""; renderDates(); render();
+}
+function loadDay(date){
+  state.date = date; state.per = {};
+  fetch("days/" + date + ".json?t=" + Date.now(), {cache:"no-store"}).then(function(r){
+    if(!r.ok) throw new Error(r.status);
+    return r.json();
+  }).then(showData).catch(function(){
+    state.error = "この日のデータを読み込めません"; state.data = null; renderDates(); render();
+  });
+}
+
+function resHtml(x,p){
+  if(!x.res) return '<div class="res"><span class="wait">結果待ち</span></div>';
+  var pays = x.res.pays || {}, hit = 0, ks = Object.keys(pays), i;
+  for(i=0;i<ks.length;i++){ if(p.picks.indexOf(ks[i])>=0) hit += pays[ks[i]]; }
+  var cost = p.picks.length*100;
+  return '<div class="res"><div>結果 <b>' + esc(x.res.order) + '</b>' + (ks.length ? '　' + pays[ks[0]].toLocaleString() + '円' + (x.od && x.od.pop ? '（' + x.od.pop + '番人気）' : '') : '') + '　' +
+    (hit ? '<span class="ok">的中 ○</span>' : '<span class="ng">はずれ</span>') + '</div>' + '</div>';
+}
+function daySum(races){
+  var n=0, hit=0;
+  races.forEach(function(x){
+    if(!x.res) return;
+    var p = x[viewOf(x)], pays = x.res.pays || {};
+    n++;
+    if(Object.keys(pays).some(function(k){ return p.picks.indexOf(k) >= 0; })) hit++;
+  });
+  if(!n) return '';
+  return '<span class="daysum">的中 ' + hit + '/' + n + 'R（' + Math.round(100*hit/n) + '%）</span>';
+}
+var render0 = render;
+render = function(){
+  render0();
+  var d = state.data, m = document.getElementById("meta");
+  if(d && m){ var fl = (d.races||[]).filter(function(x){ return (state.stad==="ALL"||x.stad===state.stad) && (state.grade==="ALL"||x[viewOf(x)].grade===state.grade); });
+    if(d.kind==="検証"){ m.insertAdjacentHTML("beforeend", '<span class="daysum">検証用（学習に使っていない期間の予想）</span>'); }
+    m.insertAdjacentHTML("beforeend", daySum(fl)); }
+};
+
+
+function jstNow(){ var t = new Date(Date.now() + 9*3600*1000); return {d: t.toISOString().slice(0,10).replace(/-/g,"/"), t: t.toISOString().slice(11,16)}; }
+function isPast(x, d){ var n = jstNow(); return !!(x.close && d && d.date === n.d && x.close <= n.t); }
+
+
+var STADBASE = {"5": 55, "6": 53, "8": 57, "12": 57, "13": 59, "16": 54, "17": 57, "18": 61, "19": 61, "20": 58, "21": 61, "22": 60, "24": 59, "1": 49, "4": 43, "10": 50, "9": 53, "14": 49, "2": 41, "15": 54, "3": 44, "23": 55, "7": 55, "11": 54};
+function fwHtml(x, v, p){ try { var w = p && p.w; if(!w) return ''; var b = STADBASE[x.sno]; var s = '<div class="fw">1号艇の1着率 <b>' + w[0] + '%</b>'; if(b != null){ var d = w[0] - b; s += ' <small>（場平均 ' + b + '%・' + (d >= 0 ? '+' : '') + d + '）</small>'; } var m = 1; for(var i = 2; i < 6; i++){ if(w[i] > w[m]) m = i; } s += '<br>危険艇 <b>' + (m + 1) + '号艇</b> 1着率 ' + w[m] + '%'; s += '<br>1着率'; for(var j = 0; j < 6; j++){ s += ' ' + (j + 1) + '号艇' + w[j] + '%'; } return s + ' <small>（モデルの見積もり）</small></div>'; } catch(e) { return ''; } }
+var ALLSTADS = ["桐生","戸田","江戸川","平和島","多摩川","浜名湖","蒲郡","常滑","津","三国","びわこ","住之江","尼崎","鳴門","丸亀","児島","宮島","徳山","下関","若松","芦屋","福岡","唐津","大村"];
+function renderStadGrid(stads, grid){ try { var sel = document.getElementById("stad"); var box = document.getElementById("stadgrid"); if(!box){ box = document.createElement("div"); box.id = "stadgrid"; var par = sel.parentNode; var ref = (typeof grid !== "undefined" && grid && grid.parentNode) ? grid : (par.tagName === "LABEL" ? par : sel); ref.parentNode.insertBefore(box, ref); (par.tagName === "LABEL" ? par : sel).style.display = "none"; box.addEventListener("click", function(e){ var b = e.target.closest("button[data-s]"); if(!b || b.disabled) return; sel.value = b.getAttribute("data-s"); sel.dispatchEvent(new Event("change")); }); } var cur = sel.value || "ALL"; var s = '<button type="button" data-s="ALL" class="sg all' + (cur === "ALL" ? ' on' : '') + '">全場</button>'; ALLSTADS.forEach(function(n){ var on = stads.indexOf(n) >= 0; s += '<button type="button" data-s="' + n + '" class="sg' + (on ? '' : ' off') + (cur === n ? ' on' : '') + '"' + (on ? '' : ' disabled') + '>' + n + '</button>'; }); box.innerHTML = s; } catch(e) {} }
+function coHtml(x, v, p){ var s = coHtml0(x, v, p); if(!s) return s; return s.replace(/<\/div>$/, pkLine(p, x.od) + '</div>'); }
+function pkLine(p, o){ try { if(!o || !o.pk || !p || !p.picks) return ''; var a = []; for(var i = 0; i < p.picks.length; i++){ var c = p.picks[i]; var v = o.pk[c]; a.push(c + ' <b>' + (v ? v.toFixed(1) + '倍' : '-') + '</b>'); } return '<br>買い目のオッズ ' + a.join(' ／ '); } catch(e) { return ''; } }
+function coHtml0(x, v, p){
+  var o = x.od, val = o && o[v];
+  if(!val) return '';
+  return '<div class="co">合成オッズ <b>' + val.toFixed(1) + '倍</b> <small>（' + (o.label ? '締切' + o.label + '分前のオッズ・目安' : '確定オッズ・目安') + '）</small>' + (false && p && p.hit ? '<br><span>期待回収率 <b>' + Math.round(p.hit * val) + '%</b> <small>（モデルの見積もり×合成オッズ・目安）</small></span>' : '') + '</div>';
+}
+
+function hitOf(x, p){
+  return !!(x.res && Object.keys(x.res.pays || {}).some(function(k){ return p.picks.indexOf(k) >= 0; }));
+}
+function pbAlloc(inv){ var t=0,i; for(i=0;i<inv.length;i++) t+=inv[i]; var units=50, raw=[], base=[], used=0; for(i=0;i<inv.length;i++){ raw.push(units*inv[i]/t); base.push(Math.floor(raw[i])); used+=base[i]; } var idx=[]; for(i=0;i<inv.length;i++) idx.push(i); idx.sort(function(a,b){ return (raw[b]-base[b])-(raw[a]-base[a]); }); for(i=0;i<units-used;i++) base[idx[i]]++; return base.map(function(u){ return u*100; }); }
+function pbHtml(races, ok){
+  var n=0,s1=0,r1=0,s2=0,r2=0;
+  races.forEach(function(x){
+    if(!x.res || !x.od || !x.od.pk || !ok(x)) return;
+    var p = x[viewOf(x)]; if(!p) return;
+    var pays = x.res.pays || {}, inv=[], i;
+    for(i=0;i<p.picks.length;i++){ var o = x.od.pk[p.picks[i]]; if(!o || o<=0) return; inv.push(1/o); }
+    var st = pbAlloc(inv), g1=0, g2=0;
+    for(i=0;i<p.picks.length;i++){ var pay = pays[p.picks[i]] || 0; g1 += pay; g2 += st[i]/100*pay; }
+    n++; s1 += 100*p.picks.length; r1 += g1; s2 += 5000; r2 += g2;
+  });
+  if(!n) return '';
+  function f(v){ return (v>=0?'+':'') + Math.round(v).toLocaleString() + '円'; }
+  return '<span class="daysum pbsum">100円ずつ買い 回収率 ' + Math.round(100*r1/s1) + '%（' + f(r1-s1) + '）／ 合成オッズ5000円買い 回収率 ' + Math.round(100*r2/s2) + '%（' + f(r2-s2) + '）<small>（オッズのあるレース ' + n + 'R）</small></span>';
+}
+var render1 = render;
+render = function(){
+  render1();
+  try {
+    var d = state.data, m = document.getElementById("meta");
+    if(d && m){
+      var old = m.querySelector(".pbsum"); if(old) old.parentNode.removeChild(old);
+      m.insertAdjacentHTML("beforeend", pbHtml(d.races || [], function(x){ var q = x[viewOf(x)]; return q && (state.grade==="ALL"||q.grade===state.grade) && (state.stad==="ALL"||x.stad===state.stad); }));
+    }
+  } catch(e) {}
+};
+function loadData(){
+  fetch("days/index.json?t=" + Date.now(), {cache:"no-store"}).then(function(r){
+    if(!r.ok) throw new Error(r.status);
+    return r.json();
+  }).then(function(ix){
+    var ds = (ix.dates || []).slice().sort();
+    if(!ds.length) throw new Error("empty");
+    var latest = ds[ds.length-1];
+    state.dates = ds;
+    if(!state.date || ds.indexOf(state.date) < 0) state.date = latest;
+    if(state.date === latest || !state.data){ loadDay(state.date); } else { renderDates(); }
+  }).catch(function(){
+    fetch("data.json?t=" + Date.now(), {cache:"no-store"}).then(function(r){
+      if(!r.ok) throw new Error(r.status);
+      return r.json();
+    }).then(function(d){
+      if(!d || !d.races || !d.races.length) throw new Error("empty");
+      if(!state.data) showData(d);
+    }).catch(function(){
+      if(!state.data){ state.error = "予想データを読み込めません"; render(); }
+    });
+  });
+}
+
+document.getElementById("datebar").addEventListener("change", function(e){
+  if(e.target.id === "dsel") loadDay(e.target.value);
+});
+document.getElementById("datebar").addEventListener("click", function(e){
+  var b = e.target.closest("button"); if(!b || b.disabled) return;
+  var ds = state.dates || [], i = ds.indexOf(state.date);
+  if(b.id === "dprev" && i > 0) loadDay(ds[i-1]);
+  else if(b.id === "dnext" && i < ds.length-1) loadDay(ds[i+1]);
+  else if(b.id === "dlatest") loadDay(ds[ds.length-1]);
+});
+
+document.getElementById("pills").addEventListener("click", function(e){
+  var b = e.target.closest("button[data-g]"); if(!b) return;
+  state.grade = b.getAttribute("data-g"); render();
+});
+document.getElementById("seg").addEventListener("click", function(e){
+  var b = e.target.closest("button[data-v]"); if(!b) return;
+  var vv = b.getAttribute("data-v"); if(vv==="hit"){ state.hitOnly = !state.hitOnly; render(); return; } if(vv==="done"){ state.doneOnly = !state.doneOnly; render(); return; } state.view = vv; state.per = {}; render();
+});
+document.getElementById("grid").addEventListener("click", function(e){
+  var b = e.target.closest("button[data-k]"); if(!b || b.disabled) return;
+  state.per[b.getAttribute("data-k")] = b.getAttribute("data-v"); render();
+});
+document.getElementById("stad").addEventListener("change", function(e){ state.stad = e.target.value; render(); });
+
+document.getElementById("grid").addEventListener("click", function(e){
+  var b = e.target.closest("button[data-copy]"); if(!b || !state.data) return;
+  var k = b.getAttribute("data-copy"), x = (state.data.races || []).filter(function(r){ return key(r) === k; })[0];
+  if(!x) return;
+  var t = copyText(x, viewOf(x)), old = b.textContent;
+  function done(ok){ b.textContent = ok ? "コピーしました" : "コピーできません"; setTimeout(function(){ b.textContent = old; }, 1500); }
+  try{ navigator.clipboard.writeText(t).then(function(){ done(true); }, function(){ done(false); }); }catch(err){ done(false); }
+});
+
+loadData();
+setInterval(loadData, 300000);
+</script>
+</body>
+</html>
