@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>万舟 | 予想屋じろう</title>
+<style>
+:root{--bg:#fff;--fg:#222;--m:#777;--c:#f6f6f8;--b:#ddd;--a:#c0392b;--l:#0b57d0}
+@media (prefers-color-scheme:dark){:root{--bg:#16181c;--fg:#e8e8e8;--m:#9a9a9a;--c:#20242a;--b:#333;--a:#ff6b5b;--l:#8ab4f8}}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 -apple-system,"Hiragino Sans",sans-serif}
+.w{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:18px;margin:0 0 12px}
+.bar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+select,button{font:inherit;padding:6px 10px;border:1px solid var(--b);border-radius:8px;background:var(--c);color:var(--fg)}
+.c{background:var(--c);border:1px solid var(--b);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+.p{font-size:17px;margin:2px 0}.p b{color:var(--a)}
+.m{color:var(--m);font-size:13px}
+a.v{color:var(--l)}
+#pl{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--b);margin-bottom:12px}
+#pl[hidden]{display:none}
+#fr{width:100%;max-height:38vh;aspect-ratio:16/9;border:0;border-radius:8px;background:#000}
+.pb{display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap}
+</style></head><body><div class="w">
+<h1>万舟（3連単1万円以上） <span class="m" id="sum"></span></h1>
+<div class="bar"><button id="prev">◀ 前日</button><select id="d"></select><button id="next">翌日 ▶</button><a class="m" href="index.html">予想へ</a></div>
+<div id="pl" hidden><iframe id="fr" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+<div class="pb"><button id="m10">−10秒</button><button id="p10">+10秒</button><button id="cl">閉じる</button><b id="pt"></b></div></div>
+<div id="list"></div>
+<p class="m">動画はBOATCASTのLIVE映像（YouTube）です。再生位置はスタートの約10〜35秒前です。YouTubeの無料ライブ配信がある場のみ動画が付きます（全体の約3割）。過去分は配信アーカイブが残っているものに限ります。</p>
+</div><script src="manshu.js?v=4"></script></body></html>
