@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>実績｜予想屋じろう</title>
+<style>
+:root{--bg:#fff;--fg:#111;--sub:#666;--line:#e3e3e3;--card:#f6f6f6;--ok:#0b7a4b;--ng:#b3261e;--accent:#111}
+@media (prefers-color-scheme:dark){:root{--bg:#141414;--fg:#eee;--sub:#9a9a9a;--line:#2e2e2e;--card:#1e1e1e;--ok:#4fd08f;--ng:#ff8a80;--accent:#eee}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;line-height:1.6}
+.wrap{max-width:980px;margin:0 auto;padding:20px 16px 60px}
+h1{margin:0 0 4px;font-size:30px;letter-spacing:.02em}
+.top{display:flex;justify-content:space-between;align-items:baseline;border-bottom:3px solid var(--accent);padding-bottom:10px;margin-bottom:18px;gap:12px;flex-wrap:wrap}
+.top a{color:var(--sub);font-size:14px}
+.lead{color:var(--sub);font-size:14px;margin:0 0 16px}
+.tabs{display:flex;gap:8px;margin:0 0 16px;flex-wrap:wrap}
+.tabs button{border:1px solid var(--line);background:var(--bg);color:var(--fg);padding:8px 14px;border-radius:999px;font-size:14px;cursor:pointer}
+.tabs button[aria-pressed=true]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-bottom:8px}
+.card{background:var(--card);border-radius:10px;padding:14px 16px}
+.card h3{margin:0 0 6px;font-size:13px;color:var(--sub);font-weight:600}
+.big{font-size:30px;font-weight:700;line-height:1.15}
+.small{font-size:12px;color:var(--sub)}
+h2{font-size:18px;margin:28px 0 8px}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--sub);font-weight:600;font-size:12px}
+.scroll{overflow-x:auto}
+.ref{color:var(--sub)}
+.note{background:var(--card);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--sub);margin-top:24px}
+.note p{margin:0 0 6px}
+.note b{color:var(--fg)}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;border:1px solid var(--line);color:var(--sub);margin-left:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><h1>実績</h1><a href="./">← 予想に戻る</a></div>
+<p class="lead">予想の成績を、良い日も悪い日も、そのまま載せています。買い目は、100円ずつ全点買った場合です。</p>
+<div class="tabs" id="tabs"></div>
+<div id="summary"></div>
+<h2>日ごとの成績</h2>
+<div class="scroll"><table id="days"></table></div>
+<h2>おすすめ度（グレード）別の成績</h2>
+<div class="scroll"><table id="grades"></table></div>
+<div class="note">
+<p><b>回収率が100%未満とは、買い続けると、平均して損をする、という意味です。</b>競艇は、売上の約25%があらかじめ引かれるため、100%を超えるのは簡単ではありません。この予想も、回収率の目安は、約75〜80%です。</p>
+<p>的中率は、買い目のどれか1つでも、3連単が当たったレースの割合です。回収率は、払戻の合計を、買った金額の合計で割った値です。</p>
+<p>おすすめ度は、「的中率の予想」が高いほどS、低いほどEです。Sほど当たりやすい目安ですが、必ず当たるわけではありません。</p>
+<p>「作り直し分」は、後から同じ方法で予想を再現した参考値で、その日のレース前に出した予想ではありません。「リアルタイム実績」だけが、レース前に出した予想の記録です。</p>
+<p>舟券の購入は、余裕のある範囲で。損をすることもあります。</p>
+</div>
+<p class="small" id="gen"></p>
+</div>
+<script>
+(function(){
+  var state = {scope:"real", data:null};
+  var el = function(id){ return document.getElementById(id); };
+  function pct(a,b){ return b ? (100*a/b).toFixed(1)+"%" : "-"; }
+  function fmtDate(s){ return s.slice(0,4)+"/"+s.slice(4,6)+"/"+s.slice(6,8); }
+  function isReal(d,from){ return d >= from; }
+  function render(){
+    var D = state.data; if(!D) return;
+    var keys = Object.keys(D.days).sort().reverse();
+    var from = D.real_from;
+    var scope = state.scope;
+    var use = keys.filter(function(k){ return scope==="all" || isReal(k,from); });
+    var agg = {pre:[0,0,0,0], ex:[0,0,0,0], fin:0, man:0};
+    var G = {pre:{}, ex:{}};
+    use.forEach(function(k){
+      var d = D.days[k]; agg.fin += d.finished; agg.man += d.man;
+      ["pre","ex"].forEach(function(v){
+        for(var i=0;i<4;i++) agg[v][i] += d[v][i];
+        Object.keys(d.g[v]||{}).forEach(function(g){
+          var s = G[v][g] = G[v][g] || [0,0,0,0];
+          for(var i=0;i<4;i++) s[i] += d.g[v][g][i];
+        });
+      });
+    });
+    el("tabs").innerHTML = '<button type="button" data-s="real" aria-pressed="'+(scope==="real")+'">リアルタイム実績（'+fmtDate(from)+'〜）</button><button type="button" data-s="all" aria-pressed="'+(scope==="all")+'">全期間（作り直し分を含む・参考）</button>';
+    function card(t,v){
+      var a = agg[v], rr = a[2] ? 100*a[3]/a[2] : 0;
+      return '<div class="card"><h3>'+t+'</h3><div class="big">'+pct(a[1],a[0])+'</div><div class="small">的中率（'+a[1]+' / '+a[0]+'レース）</div><div class="big" style="margin-top:8px">'+(a[2]?rr.toFixed(1)+"%":"-")+'</div><div class="small">回収率（'+a[3].toLocaleString()+'円 / '+a[2].toLocaleString()+'円）</div></div>';
+    }
+    el("summary").innerHTML = '<div class="cards">'+card("事前予想","pre")+card("展示後予想","ex")+
+      '<div class="card"><h3>終了したレース</h3><div class="big">'+agg.fin.toLocaleString()+'</div><div class="small">'+use.length+'日分</div></div></div>';
+    var h = '<tr><th>日付</th><th>終了</th><th>事前 的中</th><th>事前 回収</th><th>展示後 的中</th><th>展示後 回収</th></tr>';
+    use.forEach(function(k){
+      var d = D.days[k], real = isReal(k,from);
+      function rr(v){ var a = d[v]; return a[2] ? (100*a[3]/a[2]).toFixed(1)+"%" : "-"; }
+      h += '<tr class="'+(real?"":"ref")+'"><td>'+fmtDate(k)+(real?'':'<span class="tag">作り直し</span>')+'</td><td>'+d.finished+'/'+d.total+'</td><td>'+pct(d.pre[1],d.pre[0])+'</td><td>'+rr("pre")+'</td><td>'+pct(d.ex[1],d.ex[0])+'</td><td>'+rr("ex")+'</td></tr>';
+    });
+    el("days").innerHTML = h;
+    var gh = '<tr><th>グレード</th><th>事前 レース</th><th>事前 的中</th><th>事前 回収</th><th>展示後 レース</th><th>展示後 的中</th><th>展示後 回収</th></tr>';
+    "SABCDE".split("").forEach(function(g){
+      function cells(v){ var s = G[v][g]; if(!s||!s[0]) return '<td>-</td><td>-</td><td>-</td>'; return '<td>'+s[0]+'</td><td>'+pct(s[1],s[0])+'</td><td>'+(s[2]?(100*s[3]/s[2]).toFixed(1)+"%":"-")+'</td>'; }
+      gh += '<tr><td><b>'+g+'</b></td>'+cells("pre")+cells("ex")+'</tr>';
+    });
+    el("grades").innerHTML = gh;
+    el("gen").textContent = "更新 "+D.generated;
+  }
+  el("tabs").addEventListener("click", function(e){ var b = e.target.closest("button"); if(!b) return; state.scope = b.getAttribute("data-s"); render(); });
+  fetch("results.json?t="+Date.now(), {cache:"no-store"}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+   .then(function(d){ state.data = d; render(); })
+   .catch(function(){ el("summary").innerHTML = '<p class="lead">実績データを読み込めません。しばらくしてからもう一度開いてください。</p>'; });
+})();
+</script>
+</body>
+</html>
